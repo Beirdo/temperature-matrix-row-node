@@ -1,10 +1,14 @@
 #include <EnableInterrupt.h>
-
 #include "TMP05.h"
+#include "mcp2515.h"
 
 TMP05 sensors(4, 8, 9);
+MCP2515 mcp2515(10);
 
 void setup() {
+  mcp2515.reset();
+  mcp2515.setBitrate(CAN_125KBPS, MCP_20MHZ);
+  mcp2515.setNormalMode();
 }
 
 void loop() {

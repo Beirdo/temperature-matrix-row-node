@@ -4,3 +4,6 @@
 [submodule "libraries/EnableInterrupt"]
 	path = libraries/EnableInterrupt
 	url = https://github.com/GreyGnome/EnableInterrupt.git
+[submodule "libraries/arduino-mcp2515"]
+	path = libraries/arduino-mcp2515
+	url = https://github.com/autowp/arduino-mcp2515.git
