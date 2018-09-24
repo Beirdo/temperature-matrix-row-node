@@ -1,0 +1,6 @@
+[submodule "libraries/Arduino-TMP05"]
+	path = libraries/Arduino-TMP05
+	url = https://github.com/Beirdo/Arduino-TMP05.git
+[submodule "libraries/EnableInterrupt"]
+	path = libraries/EnableInterrupt
+	url = https://github.com/GreyGnome/EnableInterrupt.git
