@@ -4,8 +4,9 @@
 #include <Arduino.h>
 #include <inttypes.h>
 #include <SPI.h>
+#include <extraPins.h>
 
-class SPI_74HC597D {
+class SPI_74HC597D : protected ExtraPins {
 public:
     SPI_74HC597D(uint8_t ld_pin, uint8_t latch_pin, uint8_t cs_pin);
     uint8_t getValue(void);

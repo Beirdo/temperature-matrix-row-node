@@ -1,4 +1,5 @@
 #include "SPI-74HC597D.h"
+#include "extraPins.h"
 
 SPI_74HC597D::SPI_74HC597D(uint8_t ld_pin, uint8_t latch_pin, uint8_t cs_pin)
 {
