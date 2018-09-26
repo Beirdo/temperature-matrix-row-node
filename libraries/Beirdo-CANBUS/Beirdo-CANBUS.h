@@ -6,17 +6,18 @@
 #include <mcp2515.h>
 #include <extraPins.h>
 
-#ifndef uint8_8t
-#define uint8_8t uint16_t
-#endif
+#define MAX_READINGS 16
 
-#define MAX_READINGS 8
+typedef struct {
+    uint8_t *buffer;
+    uint8_t buflen;
+} canbus_buffer_t;
 
 class Beirdo_CANBUS : protected ExtraPins {
 public:
     Beirdo_CANBUS(MCP2515 *controller, uint8_t canID, uint8_t stbyPin, uint8_t intPin);
     void clearReadings(void);
-    void addReading(uint8_t index, uint8_8t reading);
+    void queueReading(uint8_t *buffer, uint8_t buflen);
     void sendAllReadings(void);
     uint8_t readingCount(void);
     void canbusInterruptSlowHandler(void);
@@ -30,10 +31,7 @@ private:
     uint8_t p_stbyPin;
     uint8_t p_intPin;
     struct can_frame p_frame;
-    struct {
-        uint8_t index;
-        uint8_8t reading;
-    } p_readings[MAX_READINGS];
+    uint8_t *p_readings[MAX_READINGS];
     uint8_t p_writeIndex;
     uint8_t p_readIndex;
     uint8_t p_interrupt;

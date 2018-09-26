@@ -24,6 +24,7 @@ sensor_config_t sensor_config[5] = {
 };
 
 
+uint32_t lastReading[5] = {0};
 TMP05 *sensors[5];
 MCP2515 mcp2515(10);
 SPI_74HC597D shiftReg(20, 21, 9);
@@ -37,12 +38,6 @@ VectoredInterruptHandler *vectorManager;
 void setup() {
     pinManager = ExtraPinManager.getInstance();
     vectorManager = new VectoredInterruptHandler(6);
-
-    uint8_t i;
-    for (i = 0; i < 5; i++) {
-        sensor_config_t *config = &sensor_config[i];
-        sensors[i] = new TMP05(config->count, config->outpin, config->inpin);
-    }
 
     mcp2515.reset();
     mcp2515.setBitrate(CAN_125KBPS, MCP_20MHZ);
@@ -58,28 +53,63 @@ void setup() {
 
     canID = ~(shiftReg.getValue());
     canbus = new Beirdo_CANBUS(&mcp2515, canID, 22, 0);
+
+    for (uint8_t i = 0; i < 5; i++) {
+        sensor_config_t *config = &sensor_config[i];
+        sensors[i] = new TMP05(config->count, config->start, canID, 
+                               config->outpin, config->inpin);
+    }
+
 }
 
 void loop() {
-    uint8_8t reading;
+    sensor_data_t *reading;
     uint8_t i;
-    uint8_t j;
+    uint32_t timestamp = millis();
+    uint32_t delta;
+    uint32_t prevTimestamp;
+
+    // Do the "slow" part of MCP2515 interrupt handling (sends next buffers)
+    canbus->canbusInterruptSlowHandler();
     
+    // Pull all available sensor readings and queue for CANBUS transmission
     for (i = 0; i < 5; i++) {
         TMP05 *sensor = sensors[i];
-        if (sensor->getState() == -1) {
-            sensor_config_t *config = &sensor_config[i];
 
-            for (j = 0; j < config->count; j++) {
-                reading = sensor->getReading(j);
-                canbus->addReading(config->start + j, reading);
+        while (sensor->getReadingCount()) {
+            reading = sensor->getReading();
+            if (!reading) {
+                break;
             }
-            sensor->startConversion();
+
+            canbus->queueReading(reading, sizeof(sensor_data_t));
         }
     }
 
+    // Kick the transmission off, using any available buffers
     canbus->sendAllReadings();
-    delay(1);
-}  
+
+    // Start new conversions if it's time
+    for (i = 0; i < 5; i++) {
+        prevTimestamp = lastReading[i];
+        if (timestamp < prevTimestamp) {
+            // Assume the timestamp has rolled over
+            delta = ((0xFFFFFFFF - prevTimestamp) + 1) + timestamp;
+        } else {
+            delta = timestamp - prevTimestamp;
+        }
+
+        if (delta >= 1000) {
+            TMP05 *sensor = sensors[i];
+
+            if (sensor->inactive()) {
+                lastReading[i] = timestamp;
+                sensor->startConversion();
+            }
+        }
+    }
+
+    delay(10);
+}
 
 // vim:ts=4:sw=4:ai:et:si:sts=4
