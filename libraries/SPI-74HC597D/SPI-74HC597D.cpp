@@ -1,7 +1,7 @@
 #include "SPI-74HC597D.h"
 #include "extraPins.h"
 
-SPI_74HC597D::SPI_74HC597D(uint8_t ld_pin, uint8_t latch_pin, uint8_t cs_pin)
+SPI_74HC597D::SPI_74HC597D(uint8_t ld_pin, uint8_t latch_pin, uint8_t cs_pin) : ExtraPins()
 {
     p_ld_pin = ld_pin;
     p_latch_pin = latch_pin;

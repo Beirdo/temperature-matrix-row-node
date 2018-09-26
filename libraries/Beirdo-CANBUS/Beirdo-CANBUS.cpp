@@ -1,12 +1,47 @@
 #include "Beirdo-CANBUS.h"
+#include <extraPins.h>
+#include <vectoredInterrupt.h>
 
 
-Beirdo_CANBUS::Beirdo_CANBUS(MCP2515 *controller, uint8_t canID)
+Beirdo_CANBUS::Beirdo_CANBUS(MCP2515 *controller, uint8_t canID, uint8_t stbyPin, uint8_t intPin) : ExtraPins()
 {
     p_controller = controller;
     p_canID = canID;
+    p_stbyPin = stbyPin;
+    p_intPin = intPin;
     p_writeIndex = 0;
     p_readIndex = 0;
+    p_interrupt = false;
+
+    digitalWrite(p_stdbyPin, LOW);  // Always in Normal mode
+    pinMode(p_stbyPin, OUTPUT);
+    
+    if (p_intPin == 0 || p_intPin == 1) { // External Interrupt lines
+        attachInterrupt(p_intPin, canBusInterruptHandler, FALLING);
+        pinMode(p_intPin + 2, INPUT_PULLUP);
+    } else {
+        attachVectoredInterrupt(p_intPin, canBusInterruptHandler, FALLING);
+        pinMode(p_intPin, INPUT_PULLUP);
+    }
+}
+
+void Beirdo_CANBUS::canbusInterruptHandler(void)
+{
+    p_interrupt = true;
+}
+
+void Beirdo_CANBUS::canbusInterruptSlowHandler(void)
+{
+    if (!p_interrupt || !p_controller) {
+        return;
+    }
+
+    p_interrupt = false;
+
+    uint8_t irq = p_controller->getInterrupts();
+
+    // deal with the various IRQ bits...
+    (void)irq;
 }
 
 void Beirdo_CANBUS::clearReadings(void)
