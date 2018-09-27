@@ -4,7 +4,7 @@ ExtraPin_PCA9536::ExtraPin_PCA9536(PCA9536 *device) : ExtraPinSource(4), p_devic
 {
 }
 
-virtual static void digitalWrite(uint8_t pin, uint8_t value)
+void ExtraPin_PCA9536::digitalWrite(uint8_t pin, uint8_t value)
 {
     uint8_t localPin = getLocalPin(pin);
     if (localPin == 0xFF) {
@@ -16,7 +16,7 @@ virtual static void digitalWrite(uint8_t pin, uint8_t value)
     p_device->setState(pcaPin, pcaValue);
 }
 
-virtual static uint8_t digitalRead(uint8_t pin)
+uint8_t ExtraPin_PCA9536::digitalRead(uint8_t pin)
 {
     uint8_t localPin = getLocalPin(pin);
     if (localPin == 0xFF) {
@@ -28,7 +28,7 @@ virtual static uint8_t digitalRead(uint8_t pin)
     return (pcaValue == IO_LOW ? LOW : HIGH);
 }
 
-virtual static void pinMode(uint8_t pin, uint8_t mode)
+void ExtraPin_PCA9536::pinMode(uint8_t pin, uint8_t mode)
 {
     uint8_t localPin = getLocalPin(pin);
     if (localPin == 0xFF) {

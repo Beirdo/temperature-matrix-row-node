@@ -20,7 +20,7 @@ uint8_t ExtraPins::digitalRead(uint8_t pin)
 
 void ExtraPins::pinMode(uint8_t pin, uint8_t mode)
 {
-    if (pin < NUM_DIGITAL_PINS) }
+    if (pin < NUM_DIGITAL_PINS) {
         ::pinMode(pin, mode);
     } else {
         extraPinMode(pin, mode);
@@ -56,11 +56,11 @@ uint8_t ExtraPinSource::getLocalPin(uint8_t pin)
 
 ExtraPinManager::ExtraPinManager()
 {
-    memset((uint8_t)p_sources, 0x00, sizeof(p_sources));
-    memset((uint8_t)p_sourceMap, 0xFF, sizeof(p_sourceMap));
+    memset((uint8_t *)p_sources, 0x00, sizeof(p_sources));
+    memset((uint8_t *)p_sourceMap, 0xFF, sizeof(p_sourceMap));
 }
 
-static ExtraPinManager *ExtraPinManager::getInstance(void)
+ExtraPinManager *ExtraPinManager::getInstance(void)
 {
     static ExtraPinManager instance;
 
@@ -166,6 +166,7 @@ void extraDigitalWrite(uint8_t pin, uint8_t value)
 }
 
 uint8_t extraDigitalRead(uint8_t pin)
+{
     ExtraPinManager *manager = ExtraPinManager::getInstance();
     ExtraPinSource *source = manager->getPinSource(pin);
 

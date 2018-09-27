@@ -36,7 +36,7 @@ ExtraPin_PCA9536 pins_pca9536(&pca9536);
 VectoredInterruptHandler *vectorManager;
 
 void setup() {
-    pinManager = ExtraPinManager.getInstance();
+    pinManager = ExtraPinManager::getInstance();
     vectorManager = new VectoredInterruptHandler(6);
 
     mcp2515.reset();
@@ -82,7 +82,7 @@ void loop() {
                 break;
             }
 
-            canbus->queueReading(reading, sizeof(sensor_data_t));
+            canbus->queueReading((uint8_t *)reading, sizeof(sensor_data_t));
         }
     }
 

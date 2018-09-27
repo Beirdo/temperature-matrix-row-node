@@ -20,10 +20,10 @@ public:
     void queueReading(uint8_t *buffer, uint8_t buflen);
     void sendAllReadings(void);
     uint8_t readingCount(void);
+    void canbusInterruptHandler(void);
     void canbusInterruptSlowHandler(void);
 
 protected:
-    void canbusInterruptHandler(void);
 
 private:
     MCP2515 *p_controller;

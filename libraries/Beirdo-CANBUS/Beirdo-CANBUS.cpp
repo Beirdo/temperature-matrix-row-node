@@ -3,6 +3,23 @@
 #include <vectoredInterrupt.h>
 
 
+Beirdo_CANBUS *instance = NULL;
+
+static void interruptPinHandler(uint8_t pin)
+{
+    (void)pin;
+    if (!instance) {
+        return;
+    }
+    instance->canbusInterruptHandler();
+}
+
+static void interruptNoPinHandler(void)
+{
+    interruptPinHandler(0);
+}
+
+
 Beirdo_CANBUS::Beirdo_CANBUS(MCP2515 *controller, uint8_t canID,
                              uint8_t stbyPin, uint8_t intPin) : ExtraPins()
 {
@@ -14,14 +31,14 @@ Beirdo_CANBUS::Beirdo_CANBUS(MCP2515 *controller, uint8_t canID,
     p_readIndex = 0;
     p_interrupt = false;
 
-    digitalWrite(p_stdbyPin, LOW);  // Always in Normal mode
+    digitalWrite(p_stbyPin, LOW);  // Always in Normal mode
     pinMode(p_stbyPin, OUTPUT);
 
     if (p_intPin == 0 || p_intPin == 1) { // External Interrupt lines
-        attachInterrupt(p_intPin, canBusInterruptHandler, FALLING);
+        attachInterrupt(p_intPin, interruptNoPinHandler, FALLING);
         pinMode(p_intPin + 2, INPUT_PULLUP);
     } else {
-        attachVectoredInterrupt(p_intPin, canBusInterruptHandler, FALLING);
+        attachVectoredInterrupt(p_intPin, interruptPinHandler, FALLING);
         pinMode(p_intPin, INPUT_PULLUP);
     }
 

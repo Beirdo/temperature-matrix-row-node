@@ -6,7 +6,8 @@
 #include <EnableInterrupt.h>
 
 
-void attachVectoredInterrupt(uint8_t pin, void (*handler)(void), uint8_t mode)
+void attachVectoredInterrupt(uint8_t pin, void (*handler)(uint8)t),
+                             uint8_t mode)
 {
     if (!vectorManager) {
         return;
@@ -66,7 +67,7 @@ uint8_t VectoredInterruptHandler::getPinIndex(uint8_t pin)
     return index;
 }
 
-void VectoredInterruptHandler::registerHandler(uint8_t pin, void (*handler)(void), uint8_t mode)
+void VectoredInterruptHandler::registerHandler(uint8_t pin, void (*handler)(uint8_t), uint8_t mode)
 {
     uint8_t index = getPinIndex(pin);
     
@@ -107,7 +108,7 @@ void VectoredInterruptHandler::interruptHandler(uint8_t pin)
     if (!handler) {
         return;
     }
-    handler();
+    handler(pin);
 }
 
 
