@@ -31,7 +31,7 @@ private:
     uint8_t p_stbyPin;
     uint8_t p_intPin;
     struct can_frame p_frame;
-    uint8_t *p_readings[MAX_READINGS];
+    canbus_buffer_t *p_readings[MAX_READINGS];
     uint8_t p_writeIndex;
     uint8_t p_readIndex;
     uint8_t p_interrupt;

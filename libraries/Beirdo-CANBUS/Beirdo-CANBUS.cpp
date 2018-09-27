@@ -1,4 +1,5 @@
 #include "Beirdo-CANBUS.h"
+#include <mcp2515.h>
 #include <extraPins.h>
 #include <vectoredInterrupt.h>
 
@@ -42,21 +43,7 @@ Beirdo_CANBUS::Beirdo_CANBUS(MCP2515 *controller, uint8_t canID,
         pinMode(p_intPin, INPUT_PULLUP);
     }
 
-    // Enable the interrupts in the buffer control registers
-    p_controller->modifyRegister(MCP2515::MCP_TXB0CTRL, MCP2515::TXB_TXIE,
-                                 MCP2515::TXB_TXIE);
-    p_controller->modifyRegister(MCP2515::MCP_TXB1CTRL, MCP2515::TXB_TXIE,
-                                 MCP2515::TXB_TXIE);
-    p_controller->modifyRegister(MCP2515::MCP_TXB2CTRL, MCP2515::TXB_TXIE,
-                                 MCP2515::TXB_TXIE);
-
-    // Clear the transmit interrupts just in case
-    p_controller->clearTXInterrupts();
-    
-    // Enable transmit interrupts
-    uint8_t mask = MCP2515::CANINTF_TX0IF | MCP2515::CANINTF_TX1IF |
-                   MCP2515::CANINTF_TX2IF;
-    p_controller->modifyRegister(MCP_CANINTE, mask, mask);
+    p_controller->enableTXInterrupts();
 }
 
 void Beirdo_CANBUS::canbusInterruptHandler(void)
@@ -101,8 +88,8 @@ void Beirdo_CANBUS::queueReading(uint8_t *buffer, uint8_t buflen)
     }
 
     uint8_t index = p_writeIndex;
-    p_readings[index].buffer = buffer;
-    p_readings[index].buflen = buflen;
+    p_readings[index]->buffer = buffer;
+    p_readings[index]->buflen = buflen;
     p_writeIndex = (p_writeIndex + 1) % MAX_READINGS;
 }
 
@@ -114,15 +101,15 @@ uint8_t Beirdo_CANBUS::readingCount(void)
 void Beirdo_CANBUS::sendAllReadings(void)
 {
     uint8_t index;
-    MCP2515::ERROR status = CAN2515::ERROR_OK;
+    MCP2515::ERROR status = MCP2515::ERROR_OK;
 
-    while(readingCount() && status == CAN2515::ERROR_OK) {
+    while(readingCount() && status == MCP2515::ERROR_OK) {
         index = p_readIndex;
-        p_frame.can_dlc = p_readings[index].buflen;
+        p_frame.can_dlc = p_readings[index]->buflen;
         p_frame.can_id = p_canID;
-        memcpy(p_frame.data, p_readings[index].buffer, p_frame.can_dlc);
+        memcpy(p_frame.data, p_readings[index]->buffer, p_frame.can_dlc);
         status = p_controller->sendMessage(&p_frame);
-        if (status == CAN2515::ERROR_OK) {
+        if (status == MCP2515::ERROR_OK) {
             p_readIndex = (p_readIndex + 1) % MAX_READINGS;
         }
     }

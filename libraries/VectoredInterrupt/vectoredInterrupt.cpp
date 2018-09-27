@@ -3,17 +3,18 @@
 
 #define LIBCALL_ENABLEINTERRUPT
 #define EI_ARDUINO_INTERRUPTED_PIN
+#define EI_NOEXTERNAL
 #include <EnableInterrupt.h>
 
 
-void attachVectoredInterrupt(uint8_t pin, void (*handler)(uint8)t),
+void attachVectoredInterrupt(uint8_t pin, void (*handler)(uint8_t),
                              uint8_t mode)
 {
     if (!vectorManager) {
         return;
     }
 
-    vectorManager->registerHandler(pin, handler, mode)
+    vectorManager->registerHandler(pin, handler, mode);
 }
 
 void detachVectoredInterrupt(uint8_t pin)
@@ -22,16 +23,16 @@ void detachVectoredInterrupt(uint8_t pin)
         return;
     }
 
-    vectorManager->unregisterHandler(pin)
+    vectorManager->unregisterHandler(pin);
 }
 
 void vectoredHandler(void)
 {
-    if (!vectorHandler) {
+    if (!vectorManager) {
         return;
     }
 
-    vectorHandler->interruptHandler(arduinoInterruptedPin);
+    vectorManager->interruptHandler(arduinoInterruptedPin);
 }
 
 
@@ -104,7 +105,7 @@ void VectoredInterruptHandler::interruptHandler(uint8_t pin)
         return;
     }
 
-    void (*handler)(void) = p_handlerMap[index].handler;
+    void (*handler)(uint8_t) = p_handlerMap[index].handler;
     if (!handler) {
         return;
     }

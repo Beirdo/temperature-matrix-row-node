@@ -1,3 +1,5 @@
+#define EI_ARDUINO_INTERRUPTED_PIN
+#define EI_NOTEXTERNAL
 #include <EnableInterrupt.h>
 #include "TMP05.h"
 #include "mcp2515.h"
