@@ -6,7 +6,7 @@
 	url = https://github.com/GreyGnome/EnableInterrupt.git
 [submodule "libraries/Arduino-MCP2515"]
 	path = libraries/Arduino-MCP2515
-	url = https://github.com/Beirdo/Arduino-MCP2515.git
+	url = https://github.com/Beirdo/Arduino-MCP2515
 [submodule "libraries/PCA9536"]
 	path = libraries/PCA9536
 	url = https://github.com/nadavmatalon/PCA9536.git
